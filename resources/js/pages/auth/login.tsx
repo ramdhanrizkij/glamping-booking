@@ -14,15 +14,29 @@ import { request } from '@/routes/password';
 type Props = {
     status?: string;
     canResetPassword: boolean;
+    email?: string;
 };
 
-export default function Login({ status, canResetPassword }: Props) {
+export default function Login({ status, canResetPassword, email }: Props) {
     return (
         <>
             <Head title="Log in" />
 
+            {status === 'email-verified' && (
+                <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+                    Email berhasil diverifikasi. Silakan login untuk melanjutkan.
+                </div>
+            )}
+
+            {status === 'email-already-verified' && (
+                <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-medium text-blue-700">
+                    Email ini sudah terverifikasi. Silakan login.
+                </div>
+            )}
+
             <Form
-                {...store.form()}
+                action={store.url()}
+                method="post"
                 resetOnSuccess={['password']}
                 className="flex flex-col gap-6"
             >
@@ -39,6 +53,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                     autoFocus
                                     tabIndex={1}
                                     autoComplete="email"
+                                    defaultValue={email}
                                     placeholder="email@example.com"
                                 />
                                 <InputError message={errors.email} />
@@ -98,12 +113,12 @@ export default function Login({ status, canResetPassword }: Props) {
                     </>
                 )}
             </Form>
-
-            {status && (
+            {status &&
+                !['email-verified', 'email-already-verified'].includes(status) && (
                 <div className="mb-4 text-center text-sm font-medium text-green-600">
                     {status}
                 </div>
-            )}
+                )}
         </>
     );
 }

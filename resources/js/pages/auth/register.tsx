@@ -18,7 +18,8 @@ export default function Register({ passwordRules }: Props) {
         <>
             <Head title="Register" />
             <Form
-                {...store.form()}
+                action={store.url()}
+                method="post"
                 resetOnSuccess={['password', 'password_confirmation']}
                 disableWhileProcessing
                 className="flex flex-col gap-6"
@@ -115,6 +116,6 @@ export default function Register({ passwordRules }: Props) {
 }
 
 Register.layout = {
-    title: 'Create an account',
-    description: 'Enter your details below to create your account',
+    title: 'Create a customer account',
+    description: 'Enter your details below to register as a customer',
 };

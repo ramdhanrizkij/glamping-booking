@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
+use App\Notifications\VerifyEmailCodeNotification;
+use App\Support\EmailVerificationCodeService;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -28,14 +31,21 @@ use Spatie\Permission\Traits\HasRoles;
  */
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmailContract
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, MustVerifyEmail, Notifiable, HasRoles;
 
     public function customer(): HasOne
     {
         return $this->hasOne(Customer::class);
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $code = app(EmailVerificationCodeService::class)->generateFor($this);
+
+        $this->notify(new VerifyEmailCodeNotification($code));
     }
 
     /**
